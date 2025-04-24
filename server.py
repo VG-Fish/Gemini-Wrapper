@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Dict
 from flask import Flask, request, jsonify
 from environs import env
 from google import genai
@@ -20,7 +20,7 @@ def index() -> Literal["Flask app is running."]:
 
 @app.route("/gemini", methods=["POST"])
 def get_gemini_response():
-    data = request.get_json()
+    data: Dict[str, str] = request.get_json()
 
     response: GenerateContentResponse = client.models.generate_content(
         model="gemini-2.0-flash", contents=data["content"]
