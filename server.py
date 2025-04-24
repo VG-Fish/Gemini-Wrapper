@@ -9,7 +9,6 @@ app.debug = False
 
 env.read_env()
 gemini_api_key: str = env.str("GEMINI_API_KEY")
-
 client = genai.Client(api_key=gemini_api_key)
 
 
