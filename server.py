@@ -5,7 +5,7 @@ from google import genai
 from google.genai.types import GenerateContentResponse
 
 app: Flask = Flask(__name__)
-# app.debug = False
+app.debug = False
 
 env.read_env()
 gemini_api_key: str = env.str("GEMINI_API_KEY")
@@ -23,7 +23,7 @@ def get_gemini_response():
     data = request.get_json()
 
     response: GenerateContentResponse = client.models.generate_content(
-        model="gemini-2.0-flash-001", contents=data["content"]
+        model="gemini-2.0-flash", contents=data["content"]
     )
 
     return jsonify({"output": response.text})
