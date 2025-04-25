@@ -6,6 +6,8 @@ from google.genai.errors import APIError
 from google.genai.types import GenerateContentResponse
 from werkzeug.exceptions import BadRequest
 
+from errors import InvalidJSON
+
 app: Flask = Flask(__name__)
 app.debug = False
 
@@ -23,9 +25,12 @@ def index() -> Literal["Flask app is running."]:
 def get_gemini_response() -> Response:
     try:
         data: Dict[str, str] = request.get_json(force=True)
+        prompt: str | None = data.get("prompt", None)
+        if prompt is None:
+            raise InvalidJSON
 
         response: GenerateContentResponse = client.models.generate_content(
-            model="gemini-2.0-flash", contents=data.get("content", "Hello!")
+            model="gemini-2.0-flash", contents=prompt
         )
 
         return jsonify({"output": response.text})
@@ -37,6 +42,12 @@ def get_gemini_response() -> Response:
         )
     except APIError:
         return jsonify({"error": "Could not get Google Gemini's response."})
+    except InvalidJSON:
+        return jsonify(
+            {
+                "error": "To call Google Gemini, please pass in a JSON object with a key of 'prompt' and the value as your prompt."
+            }
+        )
     except Exception as e:
         return jsonify({"error": f"Unknown error occurred: {e}"})
 
