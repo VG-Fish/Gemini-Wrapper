@@ -29,12 +29,11 @@ def index() -> Literal["Flask app is running."]:
 def get_gemini_response() -> Response:
     try:
         data: Dict[str, str] = request.get_json(force=True)
-        prompt: str | None = data.get("prompt", None)
-        if prompt is None:
+        if "prompt" not in data:
             raise InvalidJSON
 
         response: GenerateContentResponse = client.models.generate_content(
-            model="gemini-2.0-flash", contents=prompt
+            model="gemini-2.0-flash", contents=data["prompt"]
         )
 
         return jsonify({"output": response.text})
