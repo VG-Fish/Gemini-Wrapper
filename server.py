@@ -2,7 +2,9 @@ from typing import Literal, Dict
 from flask import Flask, Response, request, jsonify
 from environs import env
 from google import genai
+from google.genai.errors import APIError
 from google.genai.types import GenerateContentResponse
+from werkzeug.exceptions import BadRequest
 
 app: Flask = Flask(__name__)
 app.debug = False
@@ -19,13 +21,24 @@ def index() -> Literal["Flask app is running."]:
 
 @app.route("/gemini", methods=["POST"])
 def get_gemini_response() -> Response:
-    data: Dict[str, str] = request.get_json()
+    try:
+        data: Dict[str, str] = request.get_json(force=True)
 
-    response: GenerateContentResponse = client.models.generate_content(
-        model="gemini-2.0-flash", contents=data.get("content", "Hello!")
-    )
+        response: GenerateContentResponse = client.models.generate_content(
+            model="gemini-2.0-flash", contents=data.get("content", "Hello!")
+        )
 
-    return jsonify({"output": response.text})
+        return jsonify({"output": response.text})
+    except BadRequest:
+        return jsonify(
+            {
+                "error": "Either set the current 'Content-Type' header or don't pass in malformed json."
+            }
+        )
+    except APIError:
+        return jsonify({"error": "Could not get Google Gemini's response."})
+    except Exception as e:
+        return jsonify({"error": f"Unknown error occurred: {e}"})
 
 
 if __name__ == "__main__":
