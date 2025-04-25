@@ -22,7 +22,7 @@ def get_gemini_response() -> Response:
     data: Dict[str, str] = request.get_json()
 
     response: GenerateContentResponse = client.models.generate_content(
-        model="gemini-2.0-flash", contents=data["content"]
+        model="gemini-2.0-flash", contents=data.get("content", "Hello!")
     )
 
     return jsonify({"output": response.text})
