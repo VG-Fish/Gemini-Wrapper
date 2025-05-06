@@ -6,12 +6,7 @@ from environs import env
 
 from google import genai
 from google.genai.errors import APIError
-from google.genai.types import (
-    GenerateContentResponse,
-    GenerateContentConfig,
-    Tool,
-    ToolCodeExecution,
-)
+from google.genai.types import GenerateContentResponse
 
 from werkzeug.exceptions import BadRequest
 
@@ -38,10 +33,7 @@ def get_gemini_response() -> Response:
 
         response: GenerateContentResponse = client.models.generate_content(
             model="gemini-2.0-flash",
-            contents=data["prompt"],
-            config=GenerateContentConfig(
-                tools=[Tool(code_execution=ToolCodeExecution)]
-            ),
+            contents=data["prompt"]
         )
 
         return jsonify({"output": response.text})
