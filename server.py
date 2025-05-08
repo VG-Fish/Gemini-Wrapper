@@ -6,7 +6,7 @@ from environs import env
 
 from google import genai
 from google.genai.errors import APIError
-from google.genai.types import GenerateContentResponse
+from google.genai.types import FunctionCallingConfig, GenerateContentConfig, GenerateContentResponse, ToolConfig
 
 from werkzeug.exceptions import BadRequest
 
@@ -18,6 +18,15 @@ app.debug = True
 env.read_env()
 gemini_api_key: str = env.str("GEMINI_API_KEY")
 client: genai.Client = genai.Client(api_key=gemini_api_key)
+
+tool_config: ToolConfig = ToolConfig(
+    function_calling_config=FunctionCallingConfig(
+        mode="NONE"
+    )
+)
+config: GenerateContentConfig = GenerateContentConfig(
+    tool_config=tool_config
+)
 
 @app.route("/")
 def index() -> Literal["Flask app is running."]:
@@ -33,7 +42,8 @@ def get_gemini_response() -> Response:
 
         response: GenerateContentResponse = client.models.generate_content(
             model="gemini-2.0-flash",
-            contents=data["prompt"]
+            contents=data["prompt"],
+            config=config
         )
 
         return jsonify({"output": response.text})
