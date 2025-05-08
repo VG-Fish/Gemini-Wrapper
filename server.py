@@ -13,7 +13,7 @@ from werkzeug.exceptions import BadRequest
 from errors import InvalidJSON
 
 app: Flask = Flask(__name__)
-app.debug = True
+app.debug = False
 
 env.read_env()
 gemini_api_key: str = env.str("GEMINI_API_KEY")
